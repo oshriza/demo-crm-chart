@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: {{ .Release.Name }}-crm-demo-1
+  name: {{ .Release.Name }}-nextjs-crm
+spec:
+  replicas: {{ .Values.deployment.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-crm-demo-1
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-crm-demo-1
+    spec:
+      containers:
+      - name: {{ .Release.Name }}-nextjs-crm
+        image: {{ .Values.deployment.image }}
+        imagePullPolicy: {{ .Values.deployment.imagePullPolicy }}
+        {{- with .Values.deployment.resources }}
+        resources:
+          {{- toYaml . | nindent 12 }}
+        {{- end }}
+        envFrom:
+          - configMapRef:
+              name: {{ .Release.Name }}-crm-configmap
+          - secretRef:
+              name: {{ .Release.Name }}-crm-secret
+        ports:
+        - containerPort: 3000
+    
